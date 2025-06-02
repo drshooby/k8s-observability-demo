@@ -48,3 +48,11 @@ curl http://localhost:8081/summary
 # {"task_count":1}
 docker compose down
 ```
+
+## Helm
+
+- Set up your chart scaffolding:
+```bash
+helm create charts/service1
+helm create charts/service2
+```
