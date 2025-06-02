@@ -35,3 +35,16 @@ kubectl config set-context --current --namespace=observability-demo
 ```bash
 kubectl config view --minify | grep namespace:
 ```
+
+## Test Services via Docker
+
+```bash
+docker compose up -d
+curl -X POST -d '{"name":"Finish observability demo"}' -H "Content-Type: application/json" http://localhost:8080/tasks
+# {"id":1,"name":"Finish observability demo"}
+curl http://localhost:8080/tasks
+# [{"id":1,"name":"Finish observability demo"}]
+curl http://localhost:8081/summary
+# {"task_count":1}
+docker compose down
+```
