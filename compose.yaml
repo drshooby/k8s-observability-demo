@@ -1,0 +1,14 @@
+services:
+  service1:
+    build:
+      context: ./app/service1
+    image: service1
+    ports:
+      - "8080:8080"
+
+  service2:
+    build:
+      context: ./app/service2
+    image: service2
+    ports:
+      - "8081:8081"
