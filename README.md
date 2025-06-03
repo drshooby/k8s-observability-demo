@@ -60,7 +60,7 @@ helm create charts/service2
 - Run the helm install script:
 ```bash
 chmod +x helm-install.sh
-./helm-install ../charts/service1 ../charts/service2
+./helm-install-services ../charts/app/service1 ../charts/app/service2
 ```
 - Check pod status (can take a little bit):
 ```bash
