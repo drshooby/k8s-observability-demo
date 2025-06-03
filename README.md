@@ -1,5 +1,6 @@
 # k8s-observability-demo
-to learn cluster observability tools
+
+Learning cluster observability tools
 
 Current stack idea:
 - Docker Desktop - local K8s cluster
@@ -51,8 +52,21 @@ docker compose down
 
 ## Helm
 
-- Set up your chart scaffolding:
+- (Optional) Set up your chart scaffolding (skip if you already have the files):
 ```bash
 helm create charts/service1
 helm create charts/service2
 ```
+- Run the helm install script:
+```bash
+chmod +x helm-install.sh
+./helm-install ../charts/service1 ../charts/service2
+```
+- Check pod status (can take a little bit):
+```bash
+kubectl get pods
+NAME                        READY   STATUS    RESTARTS   AGE
+service1-6c6bcf64dd-gzmv7   1/1     Running   0          30s
+service2-bc87db7b8-npjqr    1/1     Running   0          30s
+```
+> **_TIP:_** If there are issues, use `kubectl describe pod <pod-name>` to get detailed pod info and troubleshoot.
