@@ -1,6 +1,6 @@
 #!/bin/bash
 set -euo pipefail
 
-# ./destroy-all.sh service1 service2
+# ./helm-uninstall.sh service1 service2
 helm uninstall "$1" -n observability-demo
 helm uninstall "$2" -n observability-demo
