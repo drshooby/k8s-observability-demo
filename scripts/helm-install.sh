@@ -1,0 +1,11 @@
+#!/bin/bash
+set -euo pipefail
+
+# ./helm-install ../charts/service1 ../charts/service2
+if [[ -d "$1" && -d "$2" ]]; then
+    helm install service1 "$1" -n observability-demo
+    helm install service2 "$2" -n observability-demo
+else
+    echo "Error: One or both directories do not exist."
+    exit 1
+fi
