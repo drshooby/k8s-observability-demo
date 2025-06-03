@@ -70,3 +70,59 @@ service1-6c6bcf64dd-gzmv7   1/1     Running   0          30s
 service2-bc87db7b8-npjqr    1/1     Running   0          30s
 ```
 > **_TIP:_** If there are issues, use `kubectl describe pod <pod-name>` to get detailed pod info and troubleshoot.
+
+## Istio CLI (nice to have, not required)
+
+- Install `istioctl`:
+```bash
+# via Homebrew
+brew install istioctl
+# via istio.io
+curl -L https://istio.io/downloadIstio | sh -
+cd istio-1.26.1
+export PATH=$PWD/bin:$PATH
+```
+- Confirm the installation:
+```bash
+istioctl version
+Istio is not present in the cluster: no running Istio pods in namespace "istio-system"
+client version: 1.26.1
+```
+
+## Istio
+
+- I'd recommend following the docs since they are very thorough: https://istio.io/latest/docs/setup/install/helm/
+- At the end make sure to label the namespace for sidecar injection:
+```bash
+kubectl label namespace observability-demo istio-injection=enabled --overwrite
+```
+- Then restart your deployments to trigger injection (or run helm uninstall and install scripts):
+```bash
+kubectl rollout restart deployment service1
+kubectl rollout restart deployment service2
+```
+- And check your pods:
+```bash
+kubectl get pods
+NAME                        READY   STATUS    RESTARTS   AGE
+service1-6c6bcf64dd-d5vn4   2/2     Running   0          11s
+service2-bc87db7b8-6xctq    2/2     Running   0          11s
+```
+
+## Kiali
+
+- Once again I'd recommend following the docs: https://kiali.io/docs/installation/installation-guide/install-with-helm/ (install both the operator and server)
+- Check Kiali pod:
+```bash
+kubectl get pods -n istio-system | grep kiali
+kiali-549fddf87c-6l57x    1/1     Running   0          66s
+```
+- Check Kiali service:
+```bash
+kubectl get svc -n istio-system | grep kiali
+kiali    ClusterIP   10.104.22.45    <none>        20001/TCP,9090/TCP                      4m7s
+```
+- View the Kiali dashboard via port-forwarding:
+```bash
+kubectl port-forward svc/kiali -n istio-system 20001:20001
+```

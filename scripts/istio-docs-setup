@@ -1,0 +1,15 @@
+#!/bin/bash
+set -euo pipefail
+
+helm repo add istio https://istio-release.storage.googleapis.com/charts
+helm repo update
+helm install istio-base istio/base -n istio-system --set defaultRevision=default --create-namespace
+helm ls -n istio-system
+helm install istiod istio/istiod -n istio-system --wait
+helm ls -n istio-system
+helm status istiod -n istio-system
+kubectl get deployments -n istio-system --output wide
+kubectl label namespace observability-demo istio-injection=enabled --overwrite
+
+# this is when you can either restart services or just run uninstall services script followed by the install services script
+# https://istio.io/latest/docs/setup/install/helm/

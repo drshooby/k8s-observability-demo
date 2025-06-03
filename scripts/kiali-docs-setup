@@ -1,0 +1,17 @@
+#!/bin/bash
+set -euo pipefail
+
+helm repo add kiali https://kiali.org/helm-charts
+helm repo update
+helm install \
+    --set cr.create=true \
+    --set cr.namespace=istio-system \
+    --set cr.spec.auth.strategy="anonymous" \
+    --namespace kiali-operator \
+    --create-namespace \
+    kiali-operator \
+    kiali/kiali-operator
+# helm show values kiali/kiali-operator
+# kubectl port-forward svc/kiali -n istio-system 20001:20001
+
+# https://kiali.io/docs/installation/installation-guide/install-with-helm/
