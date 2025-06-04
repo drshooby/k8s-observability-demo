@@ -2,12 +2,12 @@
 
 Learning cluster observability tools
 
-Current stack idea:
+Current stack:
 - Docker Desktop - local K8s cluster
 - Istio - service mesh for routing
 - Prometheus - metric collection
 - Grafana - dashboard and visualization
-- Kiali (maybe) - service mesh topology and heatlh viewer
+- Kiali - service mesh topology and heatlh viewer
 - Go Microservices - to generate traffic and metrics
 
 ## Local Setup
@@ -69,7 +69,7 @@ NAME                        READY   STATUS    RESTARTS   AGE
 service1-6c6bcf64dd-gzmv7   1/1     Running   0          30s
 service2-bc87db7b8-npjqr    1/1     Running   0          30s
 ```
-> **_TIP:_** If there are issues, use `kubectl describe pod <pod-name>` to get detailed pod info and troubleshoot.
+> **_TIP:_** If there are issues, use `kubectl describe pod <pod-name>` to get detailed pod info and troubleshoot
 
 ## Istio CLI (nice to have, not required)
 
@@ -126,3 +126,60 @@ kiali    ClusterIP   10.104.22.45    <none>        20001/TCP,9090/TCP           
 ```bash
 kubectl port-forward svc/kiali -n istio-system 20001:20001
 ```
+
+## Prometheus
+
+- Get Prometheus (or run the setup script):
+```bash
+helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+helm repo update
+helm install prometheus prometheus-community/kube-prometheus-stack -n istio-system --create-namespace
+```
+- Check that it worked:
+```bash
+kubectl get pods -n istio-system
+NAME                                                     READY   STATUS             RESTARTS         AGE
+alertmanager-prometheus-kube-prometheus-alertmanager-0   2/2     Running            0                166m
+istiod-5d4b7d89bb-xjpj9                                  1/1     Running            1 (3h46m ago)    26h
+kiali-58fb7f6674-m4g7v                                   1/1     Running            0                3h46m
+prometheus-grafana-76cd8bb66b-hpkqp                      3/3     Running            0                166m
+prometheus-kube-prometheus-operator-5ccb5b5fb9-jb5jg     1/1     Running            0                166m
+prometheus-kube-state-metrics-74b7dc4795-zt5vr           1/1     Running            0                166m
+prometheus-prometheus-kube-prometheus-prometheus-0       2/2     Running            0                166m
+# Node exporter has issues running within Docker Desktop Kubernetes, but don't worry about it
+prometheus-prometheus-node-exporter-679dw                0/1     CrashLoopBackOff   25 (2m36s ago)   166m
+```
+- By default, Prometheus will hit `/metrics` so make sure it's an existing endpoint (or you'll probably get a 404)
+- You will also need to make sure your services have a `ServiceMonitor` available and deployed, check the service templates for an example
+```bash
+kubectl get servicemonitor
+NAME                      AGE
+service1-servicemonitor   13m
+```
+- View the Prometheus dashboard via port-forwarding:
+```bash
+kubectl port-forward svc/prometheus-kube-prometheus-prometheus -n istio-system 9090:9090
+```
+> **_TIP:_** Go has a nice prometheus library for for helping set up metrics, check the service code for an example
+
+## Grafana 
+
+- Grafana should be installed alongside prometheus stack!
+- Check Grafana pod:
+```bash
+kubectl get pods -n istio-system | grep grafana
+prometheus-grafana-76cd8bb66b-hpkqp                      3/3     Running
+```
+- View the Grafana dashboard via port-forwarding:
+```bash
+kubectl port-forward -n istio-system svc/prometheus-grafana 3000:80
+```
+- Create your own dashboard:
+    1. From `Home` switch to the `Dashboard` tab
+    2. Create your query, for our microservices we can do something like: `http_requests_total{job="service1"}` since that's what we defined in the service
+    3. Or if you choose to use the builder you can do: `https_requests_total` for Metric and `job = service1` for Label filters
+    4. Then you can be creative!
+
+## TODO
+
+- Get Istio Dashboards into Grafana so metrics can be properly viewed in Kiali
