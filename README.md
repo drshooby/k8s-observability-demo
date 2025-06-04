@@ -183,3 +183,6 @@ kubectl port-forward -n istio-system svc/prometheus-grafana 3000:80
 ## TODO
 
 - Get Istio Dashboards into Grafana so metrics can be properly viewed in Kiali
+- Add cleanup scripts
+- Add service2 metric monitoring, but that could also be a reader challenge so not sure how to go about that yet
+- Add pictures!
