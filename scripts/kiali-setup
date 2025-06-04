@@ -1,0 +1,22 @@
+#!/bin/bash
+set -euo pipefail
+
+helm repo add kiali https://kiali.org/helm-charts
+helm repo update
+helm install kiali-operator kiali/kiali-operator \
+  --namespace kiali-operator \
+  --create-namespace \
+  --set cr.create=true \
+  --set cr.namespace=istio-system \
+  --set cr.spec.auth.strategy="anonymous" \
+  --set cr.spec.external_services.prometheus.url="http://prometheus-kube-prometheus-prometheus.istio-system:9090/" \
+  --set cr.spec.external_services.grafana.enabled=true \
+  --set cr.spec.external_services.grafana.internal_url="http://prometheus-grafana.istio-system:80/" \
+  --set cr.spec.external_services.grafana.auth.type="basic" \
+  --set cr.spec.external_services.grafana.auth.username="admin" \
+  --set cr.spec.external_services.grafana.auth.password="prom-operator"
+# helm show values kiali/kiali-operator
+# kubectl port-forward svc/kiali -n istio-system 20001:20001
+
+# https://kiali.io/docs/installation/installation-guide/install-with-helm/
+# https://kiali.io/docs/configuration/p8s-jaeger-grafana/prometheus/

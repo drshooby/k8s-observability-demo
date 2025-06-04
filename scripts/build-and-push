@@ -1,0 +1,27 @@
+#!/bin/bash
+set -euo pipefail
+
+USERNAME="drshooby"
+
+if [ "$#" -eq 0 ]; then
+    echo "Usage: $0 <service-dir1> [<service-dir2> ...]"
+    exit 1
+fi
+
+echo "Logging in to Docker Hub..."
+docker login
+
+for SERVICE_DIR in "$@"; do
+    REPO_NAME=$(basename "$SERVICE_DIR")
+    IMAGE_NAME="$USERNAME/$REPO_NAME:latest"
+
+    echo "Building image for $REPO_NAME from $SERVICE_DIR..."
+    docker build -t "$IMAGE_NAME" "$SERVICE_DIR"
+
+    echo "Pushing $IMAGE_NAME to Docker Hub..."
+    docker push "$IMAGE_NAME"
+
+    echo "Pushed: https://hub.docker.com/r/$USERNAME/$REPO_NAME"
+done
+
+echo "Done."
