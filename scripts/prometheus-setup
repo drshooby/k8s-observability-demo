@@ -1,0 +1,18 @@
+#!/bin/bash
+set -euo pipefail
+
+NAMESPACE="istio-system"
+RELEASE="prometheus"
+
+# Uninstall old release if it exists
+if helm status "$RELEASE" -n "$NAMESPACE" &>/dev/null; then
+  echo "Uninstalling existing Prometheus release..."
+  helm uninstall "$RELEASE" -n "$NAMESPACE"
+fi
+
+# Add repo and update
+helm repo add prometheus-community https://prometheus-community.github.io/helm-charts
+helm repo update
+
+# Install kube-prometheus-stack (includes operator + CRDs)
+helm install "$RELEASE" prometheus-community/kube-prometheus-stack -n "$NAMESPACE" --create-namespace
