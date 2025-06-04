@@ -1,6 +1,30 @@
 #!/bin/bash
 set -euo pipefail
 
-# ./helm-uninstall-services service1 service2
-helm uninstall "$1" -n observability-demo
-helm uninstall "$2" -n observability-demo
+# Usage: ./helm-uninstall-services service1 service2
+
+if [ "$#" -ne 2 ]; then
+  echo "Usage: $0 service1 service2"
+  exit 1
+fi
+
+SERVICE1="$1"
+SERVICE2="$2"
+
+# Check if pods for SERVICE1 exist
+if kubectl get pods -n observability-demo | grep -q "$SERVICE1"; then
+  echo "Uninstalling $SERVICE1..."
+  helm uninstall "$SERVICE1" -n observability-demo
+else
+  echo "Service with name '$SERVICE1' doesn't exist (no pods found)."
+fi
+
+# Check if pods for SERVICE2 exist
+if kubectl get pods -n observability-demo | grep -q "$SERVICE2"; then
+  echo "Uninstalling $SERVICE2..."
+  helm uninstall "$SERVICE2" -n observability-demo
+else
+  echo "Service with name '$SERVICE2' doesn't exist (no pods found)."
+fi
+
+echo "Done."
